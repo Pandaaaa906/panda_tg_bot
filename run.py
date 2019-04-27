@@ -52,7 +52,7 @@ async def convert_image_to_sticker(event):
         img = Image.open(in_f)
         w, h = img.size
         ratio = w / h
-        new_size = w > h and (512, 512 / ratio) or (512 * ratio, 512)
+        new_size = w > h and (512, int(512 / ratio)) or (int(512 * ratio), 512)
         new_img = img.resize(new_size, Image.ANTIALIAS)
 
         file_name, ext = splitext(get_media_filename(message.media))
