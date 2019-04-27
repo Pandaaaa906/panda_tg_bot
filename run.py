@@ -18,7 +18,7 @@ help_text = '''\
 If you send me an image, i will convert to png format and resize into suitable size for telegram sticker.
 '''
 
-MAX_FILE_SIZE = 1024**2*10  # 10MB
+MAX_FILE_SIZE = 8*1024**2  # 8MB
 
 
 @client.on(events.NewMessage(incoming=True, pattern='/help'))
@@ -53,11 +53,11 @@ async def convert_image_to_sticker(event):
         w, h = img.size
         ratio = w / h
         new_size = w > h and (512, 512 / ratio) or (512 * ratio, 512)
-        img.thumbnail(new_size, Image.ANTIALIAS)
+        new_img = img.resize(new_size, Image.ANTIALIAS)
 
         file_name, ext = splitext(get_media_filename(message.media))
         out_f.name = f"Resized_{file_name}.png"
-        img.save(out_f)
+        new_img.save(out_f)
         out_f.flush()
         out_f.seek(0)
         chat = await event.get_input_chat()
