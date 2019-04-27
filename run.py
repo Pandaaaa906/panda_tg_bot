@@ -15,7 +15,8 @@ logger.setLevel(logging.DEBUG)
 
 
 help_text = '''\
-If you send me an image, i will convert to png format and resize into suitable size for telegram sticker.
+If you send me an image **as file**, \
+i will convert to png format and resize into suitable size for telegram sticker.
 '''
 
 MAX_FILE_SIZE = 8*1024**2  # 8MB
@@ -33,7 +34,7 @@ async def handle_help(event):
 @with_limited_file_size(MAX_FILE_SIZE)
 async def convert_image_to_sticker(event):
     """
-    Receive image then convert to png format and resize into suitable size for telegram sticker
+    Receive image then convert it to png format and resize into suitable size for telegram sticker
     """
     logger.debug("Start working")
     message = event.message
