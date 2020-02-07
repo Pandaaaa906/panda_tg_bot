@@ -1,22 +1,19 @@
-import logging
+from tg_sticker_bot import loggings
 from io import BytesIO
 from os.path import splitext
 
 from telethon import events  # , sync
 from PIL import Image
 from telethon.utils import is_image
-from settings import client, LOGGER_NAME
-from utils import get_media_filename, private_chat_only, attachment_required, with_limited_file_size
+from tg_sticker_bot.settings import client, APP_NAME
+from tg_sticker_bot.utils import get_media_filename, private_chat_only, attachment_required, with_limited_file_size
 
-FORMAT = '%(asctime)-15s %(levelname)s %(funcName)s %(message)s'
-logging.basicConfig(format=FORMAT)
-logger = logging.getLogger(LOGGER_NAME)
-logger.setLevel(logging.DEBUG)
+logger = loggings.create_logger(APP_NAME)
 
 
 help_text = '''\
-If you send me an image **as file**, \
-i will convert to png format and resize into suitable size for telegram sticker.
+If you send me an image * **as file** *, \
+i will convert it to png format and resize into suitable size for telegram sticker.
 '''
 
 MAX_FILE_SIZE = 8*1024**2  # 8MB
@@ -28,7 +25,7 @@ async def handle_help(event):
     await event.client.send_message(chat, help_text)
 
 
-@client.on(events.NewMessage(incoming=True, forwards=False))
+@client.on(events.NewMessage(incoming=True, forwards=True, pattern='^[^/]'))
 @private_chat_only
 @attachment_required
 @with_limited_file_size(MAX_FILE_SIZE)

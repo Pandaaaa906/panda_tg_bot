@@ -1,12 +1,12 @@
-import logging
 from functools import wraps
 
 from telethon.tl.types import DocumentAttributeFilename, InputPeerUser
 from hurry.filesize import size
 
-from settings import LOGGER_NAME
+from tg_sticker_bot.loggings import create_logger
+from tg_sticker_bot.settings import APP_NAME
 
-logger = logging.getLogger(LOGGER_NAME)
+logger = create_logger(APP_NAME)
 
 
 def get_media_filename(media):
@@ -55,7 +55,7 @@ def with_limited_file_size(MAX_FILE_SIZE: int):
             message = event.message
             file_size = get_media_filesize(message.media)
             if file_size > MAX_FILE_SIZE:
-                msg = f"Only image file size under {size(MAX_FILE_SIZE)} will be proccess, {size(file_size)} is too big,"
+                msg = f"Only image file size under {size(MAX_FILE_SIZE)} will be proccess, {size(file_size)} is too big."
                 logger.info(msg)
                 chat = await event.get_input_chat()
                 await event.client.send_message(chat, msg, force_document=True)
