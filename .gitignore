@@ -167,7 +167,6 @@ crashlytics-build.properties
 fabric.properties
 
 *.session
+*.session-journal
 tg_sticker_bot/secret_settings.py
 .idea
-log
-*.session-journal

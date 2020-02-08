@@ -17,3 +17,6 @@ cryptg = "^0.2"
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
+
+[tool.poetry.scripts]
+my-script = 'tg_sticker_bot:run'

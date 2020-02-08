@@ -1,14 +1,15 @@
-from tg_sticker_bot import loggings
 from io import BytesIO
 from os.path import splitext
 
 from telethon import events  # , sync
 from PIL import Image
 from telethon.utils import is_image
-from tg_sticker_bot.settings import client, APP_NAME
-from tg_sticker_bot.utils import get_media_filename, private_chat_only, attachment_required, with_limited_file_size
 
-logger = loggings.create_logger(APP_NAME)
+from loggings import create_logger
+from settings import client, APP_NAME
+from utils import get_media_filename, private_chat_only, attachment_required, with_limited_file_size
+
+logger = create_logger(APP_NAME)
 
 
 help_text = '''\
@@ -25,7 +26,7 @@ async def handle_help(event):
     await event.client.send_message(chat, help_text)
 
 
-@client.on(events.NewMessage(incoming=True, forwards=True, pattern='^[^/]'))
+@client.on(events.NewMessage(incoming=True, pattern='^[^/]'))
 @private_chat_only
 @attachment_required
 @with_limited_file_size(MAX_FILE_SIZE)
