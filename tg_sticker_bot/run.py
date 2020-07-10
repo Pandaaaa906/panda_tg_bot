@@ -5,11 +5,11 @@ from telethon import events  # , sync
 from PIL import Image
 from telethon.utils import is_image
 
-from loggings import create_logger
+from loguru import logger
 from settings import client, APP_NAME
 from utils import get_media_filename, private_chat_only, attachment_required, with_limited_file_size
 
-logger = create_logger(APP_NAME)
+logger.add("/logs/tg_sticker_bot.log", rotation="1 week")
 
 
 help_text = '''\
@@ -21,12 +21,13 @@ MAX_FILE_SIZE = 8*1024**2  # 8MB
 
 
 @client.on(events.NewMessage(incoming=True, pattern='/help'))
+@private_chat_only
 async def handle_help(event):
     chat = await event.get_input_chat()
     await event.client.send_message(chat, help_text)
 
 
-@client.on(events.NewMessage(incoming=True, pattern='^[^/]'))
+@client.on(events.NewMessage(incoming=True, pattern='^'))
 @private_chat_only
 @attachment_required
 @with_limited_file_size(MAX_FILE_SIZE)
@@ -39,7 +40,7 @@ async def convert_image_to_sticker(event):
     with BytesIO() as in_f, BytesIO() as out_f:
         success = await client.download_media(event.message, file=in_f)
         if success is None:
-            logger.debug("Fail to download media")
+            logger.info("Fail to download media")
             return
         in_f.flush()
         in_f.seek(0)
@@ -65,6 +66,7 @@ async def convert_image_to_sticker(event):
 
 
 if __name__ == '__main__':
+    logger.info("Starting Connection")
     with client:
-        logger.info("Starting Connection")
+        logger.info("Connection Established")
         client.run_until_disconnected()
