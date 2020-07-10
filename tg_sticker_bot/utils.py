@@ -48,14 +48,14 @@ def attachment_required(func):
     return wrapper
 
 
-def with_limited_file_size(MAX_FILE_SIZE: int):
+def with_limited_file_size(max_file_size: int):
     def outer_wrapper(func):
         @wraps(func)
         async def wrapper(event):
             message = event.message
             file_size = get_media_filesize(message.media)
-            if file_size > MAX_FILE_SIZE:
-                msg = f"Only image file size under {size(MAX_FILE_SIZE)} will be proccess, {size(file_size)} is too big,"
+            if file_size > max_file_size:
+                msg = f"Only image file size under {size(max_file_size)} will be process, {size(file_size)} is too big."
                 logger.info(msg)
                 chat = await event.get_input_chat()
                 await event.client.send_message(chat, msg, force_document=True)
@@ -92,3 +92,11 @@ def dont_reply_myself(func):
         return ret
 
     return wrapper
+
+
+async def get_sender_info(event):
+    sender = await event.get_sender()
+    if sender is None:
+        return
+    full_name = ' '.join(filter(lambda x: x, (sender.first_name, sender.last_name)))
+    return f'{sender.id}:{sender.username}{f"({full_name})" if full_name else ""}'

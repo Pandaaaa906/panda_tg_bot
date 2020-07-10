@@ -7,9 +7,9 @@ from telethon.utils import is_image
 
 from loguru import logger
 from settings import client, APP_NAME
-from utils import get_media_filename, private_chat_only, attachment_required, with_limited_file_size
+from utils import get_media_filename, private_chat_only, attachment_required, with_limited_file_size, get_sender_info
 
-logger.add("/logs/tg_sticker_bot.log", rotation="1 week")
+logger.add("/logs/sticker_bot.log", rotation="1 week")
 
 
 help_text = '''\
@@ -32,11 +32,14 @@ async def handle_help(event):
 @attachment_required
 @with_limited_file_size(MAX_FILE_SIZE)
 async def convert_image_to_sticker(event):
-    """
+    """if sender is not None:
     Receive image then convert it to png format and resize into suitable size for telegram sticker
     """
     logger.debug("Start working")
+    sender = await get_sender_info(event)
+
     message = event.message
+    respond = await event.reply("Processing")
     with BytesIO() as in_f, BytesIO() as out_f:
         success = await client.download_media(event.message, file=in_f)
         if success is None:
@@ -61,8 +64,12 @@ async def convert_image_to_sticker(event):
         out_f.flush()
         out_f.seek(0)
         chat = await event.get_input_chat()
-        logger.debug(f"Sending Resized File:{out_f.name}")
+
+        prompt = f"Sending Resized File:{out_f.name!r}"
+        logger.debug(f"{prompt} to {sender!r}")
+        await respond.edit(text=prompt)
         await event.client.send_file(chat, file=out_f, force_document=True)
+        await respond.edit(text="Finished")
 
 
 if __name__ == '__main__':
