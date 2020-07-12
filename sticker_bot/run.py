@@ -6,27 +6,28 @@ from PIL import Image
 from telethon.utils import is_image
 
 from loguru import logger
-from settings import client, APP_NAME
+from settings import client
 from utils import get_media_filename, private_chat_only, attachment_required, with_limited_file_size, get_sender_info
 
 logger.add("/logs/sticker_bot.log", rotation="1 week")
 
 
-help_text = '''\
-If you send me an image * **as file** *, \
-i will convert it to png format and resize into suitable size for telegram sticker.
-'''
+help_text = (
+    "If you send me an image * **as file** *, "
+    "i will convert it to png format and resize into suitable size for telegram sticker."
+    )
 
 MAX_FILE_SIZE = 8*1024**2  # 8MB
 
 
+@logger.catch
 @client.on(events.NewMessage(incoming=True, pattern='/help'))
-@private_chat_only
 async def handle_help(event):
-    chat = await event.get_input_chat()
-    await event.client.send_message(chat, help_text)
+    message = event.message
+    await message.reply(help_text)
 
 
+@logger.catch
 @client.on(events.NewMessage(incoming=True, pattern='^'))
 @private_chat_only
 @attachment_required
@@ -41,7 +42,7 @@ async def convert_image_to_sticker(event):
     message = event.message
     respond = await event.reply("Processing")
     with BytesIO() as in_f, BytesIO() as out_f:
-        success = await client.download_media(event.message, file=in_f)
+        success = await client.download_media(message, file=in_f)
         if success is None:
             logger.info("Fail to download media")
             return
@@ -63,13 +64,12 @@ async def convert_image_to_sticker(event):
         new_img.save(out_f)
         out_f.flush()
         out_f.seek(0)
-        chat = await event.get_input_chat()
 
         prompt = f"Sending Resized File:{out_f.name!r}"
         logger.debug(f"{prompt} to {sender!r}")
         await respond.edit(text=prompt)
-        await event.client.send_file(chat, file=out_f, force_document=True)
-        await respond.edit(text="Finished")
+        await message.reply(file=out_f, force_document=True)
+        await respond.edit("Finished")
 
 
 if __name__ == '__main__':

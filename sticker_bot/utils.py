@@ -4,10 +4,7 @@ from functools import wraps
 from telethon.tl.types import DocumentAttributeFilename, User, InputPeerUser
 from hurry.filesize import size
 
-import logging
-from settings import APP_NAME
-
-logger = logging.getLogger(APP_NAME)
+from loguru import logger
 
 
 def get_media_filename(media):

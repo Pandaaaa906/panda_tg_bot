@@ -1,18 +1,23 @@
-from os import environ
+from os import environ, path
 
 import socks
 from telethon import TelegramClient
-from secret_settings import api_id, api_hash, bot_token
 
-APP_NAME = "TG_BOT"
+BASE_DIR = path.dirname(path.abspath(__file__))
+
+APP_NAME = environ.get('APP_NAME') or "STICKER_BOT"
 PROXY_HOST = environ.get('PROXY_HOST')
 PROXY_PORT = int(environ.get('PROXY_PORT'))
+
+api_id = environ.get('api_id')
+api_hash = environ.get('api_hash')
+bot_token = environ.get('bot_token')
 
 proxy = None
 if PROXY_HOST:
     proxy = (socks.SOCKS5, PROXY_HOST, PROXY_PORT)
 
-client = TelegramClient('tg_bot',
+client = TelegramClient(path.join(BASE_DIR, 'session', APP_NAME),
                         api_id=api_id,
                         api_hash=api_hash,
                         proxy=proxy,
