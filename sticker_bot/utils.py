@@ -2,6 +2,7 @@ import re
 from functools import wraps
 
 from telethon.tl.types import DocumentAttributeFilename, User, InputPeerUser
+from telethon.utils import get_display_name
 from hurry.filesize import size
 
 from loguru import logger
@@ -97,3 +98,8 @@ async def get_sender_info(event):
         return
     full_name = ' '.join(filter(lambda x: x, (sender.first_name, sender.last_name)))
     return f'{sender.id}:{sender.username}{f"({full_name})" if full_name else ""}'
+
+
+async def start_up_msg(cli):
+    me = await cli.get_me()
+    logger.info(f"Logged in as: {get_display_name(me)}")

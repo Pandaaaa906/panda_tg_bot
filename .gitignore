@@ -172,3 +172,4 @@ sticker_bot/secret_settings.py
 .idea
 /secret.env
 *.iml
+seam_carving.py

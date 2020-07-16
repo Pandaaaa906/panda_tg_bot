@@ -6,3 +6,5 @@ services:
     command: python run.py
     env_file:
       - secret.env
+    volumes:
+      - /www/tg_sticker_bot/:/logs
