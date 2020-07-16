@@ -1,3 +1,4 @@
+from concurrent.futures import ProcessPoolExecutor
 from io import BytesIO
 from os.path import splitext
 
@@ -41,7 +42,7 @@ async def convert_image_to_sticker(event):
     """if sender is not None:
     Receive image then convert it to png format and resize into suitable size for telegram sticker
     """
-    logger.debug("Start working")
+    logger.debug("Request received")
     await get_sender_info(event)
     sender = await event.get_sender()
     f = 2 if sender.username == 'Pandaaaa906' else 1
@@ -61,7 +62,6 @@ async def handle_callback(event):
     msg = await event.get_message()
     sender = await get_sender_info(event)
     message = await msg.get_reply_message()
-    # respond = event
     if choice == NORMAL:
         resize_func = normal_resize
     elif choice == SEAM_CARVING:
@@ -70,13 +70,14 @@ async def handle_callback(event):
         logger.warning(f'Get wrong resize func: {choice} from {sender!r}')
         return
 
-    await event.edit('Request accepted, downloading')
+    await event.edit('Request accepted, downloading...')
 
     with BytesIO() as in_f, BytesIO() as out_f:
         success = await client.download_media(message, file=in_f)
         await event.edit('File received, processing')
         if success is None:
-            logger.info("Fail to download media")
+            logger.info('Fail to download media')
+            await event.edit('Fail to download media')
             return
         in_f.flush()
         in_f.seek(0)
@@ -86,12 +87,13 @@ async def handle_callback(event):
             return
         in_f.seek(0)
 
-        new_img = resize_func(in_f)
+        with ProcessPoolExecutor() as pool:
+            new_img = await client.loop.run_in_executor(pool, resize_func, in_f)
 
         file_name, ext = splitext(get_media_filename(message.media))
-        out_f.name = f"Resized_{file_name}.png"
+        out_f.name = f'Resized_{file_name}.png'
 
-        is_success, im_buf_arr = cv2.imencode(".png", new_img)
+        is_success, im_buf_arr = cv2.imencode('.png', new_img)
         if not is_success:
             logger.debug("OpenCV can't transform img to bytes")
             return
@@ -99,16 +101,16 @@ async def handle_callback(event):
         out_f.flush()
         out_f.seek(0)
 
-        prompt = f"Sending Resized File:{out_f.name!r}"
-        logger.debug(f"{prompt} to {sender!r}")
+        prompt = f'Sending Resized File:{out_f.name!r}'
+        logger.debug(f'{prompt} to {sender!r}')
         await event.edit(text=prompt)
         await message.reply(file=out_f, force_document=True)
-        await event.edit("Finished")
+        await event.edit('Finished')
 
 
 if __name__ == '__main__':
-    logger.info("Starting Connection")
+    logger.info('Starting Connection')
     with client:
-        logger.info("Connection Established")
+        logger.info('Connection Established')
         client.loop.run_until_complete(start_up_msg(client))
         client.run_until_disconnected()

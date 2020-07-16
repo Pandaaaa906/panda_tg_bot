@@ -1,7 +1,6 @@
 from io import BytesIO
 
 from cv2 import cv2
-from PIL import Image
 from loguru import logger
 import numpy as np
 
@@ -21,13 +20,10 @@ def open_img(fp):
 
 
 def normal_resize(fp):
-    # img = Image.open(fp)
-    # w, h = img.size
     img = open_img(fp)
     h, w, *_ = img.shape
     ratio = w / h
     new_size = w > h and (MAX_LENGTH, int(MAX_LENGTH / ratio)) or (int(MAX_LENGTH * ratio), MAX_LENGTH)
-    # return img.resize(new_size, Image.ANTIALIAS)
     return cv2.resize(img, new_size, interpolation=cv2.INTER_CUBIC)
 
 
