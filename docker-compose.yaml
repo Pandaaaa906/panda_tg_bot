@@ -1,10 +1,11 @@
 version: "3"
 
 services:
-  tg_bot:
+  tg_sticker_bot:
+    container_name: tg_sticker_bot
     build: .
-    command: python run.py
     env_file:
-      - secret.env
+      - .env
     volumes:
       - /www/tg_sticker_bot/:/logs
+    restart: unless-stopped

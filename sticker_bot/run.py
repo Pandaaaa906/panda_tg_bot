@@ -10,7 +10,7 @@ from telethon.utils import is_image
 from loguru import logger
 
 from resize_tools import normal_resize, seam_carving_resize
-from settings import client
+from settings import client, owner_username
 from utils import get_media_filename, private_chat_only, attachment_required, with_limited_file_size, get_sender_info, \
     start_up_msg
 
@@ -45,7 +45,7 @@ async def convert_image_to_sticker(event):
     logger.debug("Request received")
     await get_sender_info(event)
     sender = await event.get_sender()
-    f = 2 if sender.username == 'Pandaaaa906' else 1
+    f = 1 if (owner_username is not None and sender.username != owner_username) else 2
     await event.reply(
         'Pick resize method:',
         buttons=[
