@@ -1,6 +1,9 @@
 FROM python:3.8 AS sticker_bot_base
-RUN mkdir ~/.pip
-RUN echo "[global]\nindex-url = https://pypi.tuna.tsinghua.edu.cn/simple" | tee ~/.pip/pip.conf
+RUN mkdir -p ~/.pip \
+    && echo "[global]\nindex-url = https://pypi.mirrors.ustc.edu.cn/simple/" | tee ~/.pip/pip.conf \
+    && git config --global http.sslverify false \
+    && sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list
+
 RUN apt-get update && apt-get install -y python3-opencv
 COPY requirments.txt /tmp/requirments.txt
 RUN pip install -r /tmp/requirments.txt
