@@ -4,6 +4,6 @@ Pillow
 cryptg
 PySocks==1.6.7
 loguru
-opencv-python
+opencv-python~=4.5.2.54
 numba
 scipy
