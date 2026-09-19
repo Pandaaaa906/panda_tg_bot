@@ -1,10 +1,10 @@
 from io import BytesIO
 
-from cv2 import cv2
+import cv2
 from loguru import logger
 import numpy as np
 
-from seam_carving import seam_carve
+from sticker_bot.seam_carving import seam_carve
 
 
 MAX_LENGTH = 512

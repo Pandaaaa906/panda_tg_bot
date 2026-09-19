@@ -7,5 +7,5 @@ services:
     env_file:
       - .env
     volumes:
-      - /www/tg_sticker_bot/logs:/logs
+      - /www/tg_sticker_bot/logs:/app/logs
     restart: unless-stopped

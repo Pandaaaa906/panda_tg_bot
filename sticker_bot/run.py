@@ -2,19 +2,19 @@ from concurrent.futures import ProcessPoolExecutor
 from io import BytesIO
 from os.path import splitext
 
-from cv2 import cv2
+import cv2
 from telethon import events  # , sync
 from telethon.tl.custom import Button
 from telethon.utils import is_image
 
 from loguru import logger
 
-from resize_tools import normal_resize, seam_carving_resize
-from settings import client, owner_username
-from utils import get_media_filename, private_chat_only, attachment_required, with_limited_file_size, get_sender_info, \
+from sticker_bot.resize_tools import normal_resize, seam_carving_resize
+from sticker_bot.settings import client, owner_username
+from sticker_bot.utils import get_media_filename, private_chat_only, attachment_required, with_limited_file_size, get_sender_info, \
     start_up_msg
 
-logger.add("/logs/sticker_bot.log", rotation="1 week")
+logger.add("/app/logs/sticker_bot.log", rotation="1 week")
 
 help_text = (
     "If you send me an image * **as file** *, "

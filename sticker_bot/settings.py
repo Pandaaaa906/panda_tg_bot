@@ -1,6 +1,6 @@
 from os import path, getenv
 
-import socks
+import python_socks
 from telethon import TelegramClient
 
 BASE_DIR = path.dirname(path.abspath(__file__))
@@ -17,7 +17,7 @@ owner_username = getenv('owner_username')
 
 proxy = None
 if PROXY_HOST:
-    proxy = (socks.SOCKS5, PROXY_HOST, PROXY_PORT)
+    proxy = (python_socks.ProxyType.SOCKS5, PROXY_HOST, PROXY_PORT)
 
 client = TelegramClient(path.join(BASE_DIR, 'session', APP_NAME),
                         api_id=api_id,

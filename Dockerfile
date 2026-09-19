@@ -1,16 +1,29 @@
-FROM python:3.8 AS sticker_bot_base
-RUN mkdir -p ~/.pip \
-    && echo "[global]\nindex-url = https://pypi.mirrors.ustc.edu.cn/simple/" | tee ~/.pip/pip.conf \
-    && git config --global http.sslverify false \
-    && sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list
+FROM python:3.12-slim AS sticker_bot_base
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-RUN apt-get update && apt-get install -y python3-opencv
-COPY requirments.txt /tmp/requirments.txt
-RUN pip install -r /tmp/requirments.txt
+WORKDIR /app
+
+ENV PIP_NO_CACHE_DIR=1 \
+    UV_CACHE_DIR=/tmp/.uv/ \
+    UV_DEFAULT_INDEX="https://pypi.tuna.tsinghua.edu.cn/simple" \
+    UV_LINK_MODE=copy \
+    UV_COMPILE_BYTECODE=1 \
+    UV_NO_DEV=1
+
+# 创建虚拟环境并安装Python依赖
+RUN --mount=type=cache,target=/tmp/.uv/ \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    uv sync --frozen --no-install-project
+
+# 激活虚拟环境
+ENV PATH="/app/.venv/bin:$PATH"
 
 FROM sticker_bot_base
 
-COPY sticker_bot /sticker_bot
-WORKDIR /sticker_bot
-RUN mkdir -p /logs
-ENTRYPOINT [ "python", "run.py" ]
+COPY sticker_bot /app/sticker_bot/
+COPY pyproject.toml /app/
+
+RUN mkdir -p /app/logs
+
+ENTRYPOINT [ "uv", "run", "--no-sync", "-m", "sticker_bot.run" ]
